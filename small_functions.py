@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from md_format_converter_mi import structure
 
 # class numpy_structure(structure):
@@ -31,3 +32,20 @@ def convert_structure_to_numpy(st):
     st_numpy.mass_at = np.array(st.mass_at)
 
     return st_numpy
+
+def get_cm_corrected_structure(st_numpy):
+    """ Function for correction of atoms coordinates to the center of mass"""
+    cm_x = (st_numpy.i_mass_at*st_numpy.r_at[:,0]).sum()/st_numpy.i_mass_at.sum()
+    cm_y = (st_numpy.i_mass_at*st_numpy.r_at[:,1]).sum()/st_numpy.i_mass_at.sum()
+    cm_z = (st_numpy.i_mass_at*st_numpy.r_at[:,2]).sum()/st_numpy.i_mass_at.sum()
+
+    print(f"cm_x = {cm_x}")
+    print(f"cm_y = {cm_y}")
+    print(f"cm_z = {cm_z}")
+
+    st_numpy_new = copy.deepcopy(st_numpy)
+    st_numpy_new.r_at[:,0] = st_numpy.r_at[:,0] - cm_x
+    st_numpy_new.r_at[:,1] = st_numpy.r_at[:,1] - cm_y
+    st_numpy_new.r_at[:,2] = st_numpy.r_at[:,2] - cm_z
+
+    return st_numpy_new

@@ -32,6 +32,17 @@ class structure():
         self.type_at = [] # n_type_at array of different atom types (integers)
         self.mass_at = [] # n_type_at array of masses of different atom types (floats)
 
+    def __str__(self):
+        string = (
+                    f"Structure with {self.n_at} atoms and {self.n_type_at} atom types\n"
+                    # f" Sizes: {self.sizex} {self.sizey} {self.sizez}\n"
+                    # f"Coordinates of atoms in angstrom:\n"
+                    # f"{'\n'.join([str(r) for r in self.r_at])}"
+        )
+        return string
+
+    # def mass_at
+
 def read_lmp_data(filename=None):
 
     st = structure()
@@ -150,6 +161,60 @@ def read_rv_at(filename=None):
     return st        
 
 
+def read_r_at(filename=None):
+
+    """ Function for reading files in simple r_at format for MSD calculations"""
+    st = structure()
+    print('read_r_at filename:',filename)
+
+    f = open(filename)
+    line = f.readline().split()
+    st.n_at = int(line[0])
+    st.n_mark_at = 0
+    line = f.readline().split()
+    size = [float(i) for i in line]
+    st.sizex = size[0]
+    st.sizey = size[1]
+    st.sizez = size[2]
+    st.a_lattice3 = [st.sizex, st.sizey, st.sizez]
+    fline = f.read().split()
+    f.close()
+
+    iw=0
+    # r_at=[]
+    for i in range(st.n_at):
+        x=float(fline[iw]); iw+=1
+        y=float(fline[iw]); iw+=1
+        z=float(fline[iw]); iw+=1
+        st.r_at.append([x,y,z])
+
+    # v_at=[]
+    for i in range(st.n_at):
+        vx=0.0
+        vy=0.0
+        vz=0.0
+        st.v_at.append([vx,vy,vz])
+
+    # mass_at=[]
+    for i in range(st.n_at):
+        mass=0.0
+        st.i_mass_at.append(mass)
+
+    # i_sort_at=[]
+    for i in range(st.n_at):
+        i_type=0.0
+        st.i_type_at.append(i_type)
+
+    # num_at_r=[]
+    for i in range(st.n_at):
+        num_at=i
+        st.i_at.append(num_at)
+
+    st.type_at = list(set(st.i_type_at))
+    st.n_type_at = len(st.type_at)
+    st.mass_at = list(set(st.i_mass_at))
+
+    return st    
 
 
 def write_rf_at(st,filename=None):
