@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from md_format_converter_mi import *
-from small_functions import *
+from simple_msd_functions import *
 
 print('Hello!')
 

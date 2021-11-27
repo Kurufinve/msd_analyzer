@@ -1,11 +1,13 @@
+"""
+This module contains relatively simple functions for calculation of mean-squared displacements (MSD) of atoms.
+The "simple" means that functions do not use sophisticated algorithms for recognition of different diffusion modes,
+and can be correctly applied only if the dependence of MSD from modeling time is linear.
+"""
+
 import numpy as np
 import pandas as pd
 import copy
 from md_format_converter_mi import structure
-
-# class numpy_structure(structure):
-#     def __init__(self):
-#         super().__init__()
 
 def convert_structure_to_numpy(st):
     """ 
@@ -99,14 +101,13 @@ def calc_non_averaged_msd(sts_numpy, dt):
     This function calculates the mean-squared displacements (msd) of atoms in structures from sts_numpy list
     with respect to the first structure in sts_numpy list.
     get: sts_numpy, dt - list of structure objects with unwrapped coordinates and time difference in ps between structures, respectively
-    return: msd_arr - num_sts*(5+4*n_type_at) array, where the first column is time, 
+    return: pandas dataframe, where the first column is time, 
             the second column is non-averaged msd of all atoms,
             the third column is non-averaged msd of all atoms in x direction,
             the fourth column is non-averaged msd of all atoms in y direction,
             the fifth column is non-averaged msd of all atoms in z direction,
             the sixth and other columns are non-averaged msds of atoms of i_type i
 
-    return pandas dataframe        
     """
 
     msd = {}
@@ -151,6 +152,65 @@ def calc_non_averaged_msd(sts_numpy, dt):
     msd_df = pd.DataFrame(msd)
 
     return msd_df
+
+
+def calc_averaged_msd(sts_numpy, dt):
+
+    """
+    This function calculates the averaged mean-squared displacements (msd) of atoms in structures from sts_numpy list
+    with respect to the first structure in sts_numpy list.
+    get: sts_numpy, dt - list of structure objects with unwrapped coordinates and time difference in ps between structures, respectively
+    return: pandas dataframe, where the first column is time, 
+            the second column is non-averaged msd of all atoms,
+            the third column is non-averaged msd of all atoms in x direction,
+            the fourth column is non-averaged msd of all atoms in y direction,
+            the fifth column is non-averaged msd of all atoms in z direction,
+            the sixth and other columns are non-averaged msds of atoms of i_type i
+
+    """
+
+    msd_av = {}
+
+    msd_av['r_all'] = []
+    msd_av['x_all'] = []
+    msd_av['y_all'] = []
+    msd_av['z_all'] = []
+
+    for i_type in sts_numpy[0].type_at:
+        msd_av[f'r_{i_type}'] = []
+        msd_av[f'x_{i_type}'] = []
+        msd_av[f'y_{i_type}'] = []
+        msd_av[f'z_{i_type}'] = []
+
+    num_sts = len(sts_numpy)
+    for i in range(num_sts):
+        msd_x_i = ((sts_numpy[i].r_at[:,0] - sts_numpy[0].r_at[:,0])**2).sum()/sts_numpy[i].n_at
+        msd_y_i = ((sts_numpy[i].r_at[:,1] - sts_numpy[0].r_at[:,1])**2).sum()/sts_numpy[i].n_at
+        msd_z_i = ((sts_numpy[i].r_at[:,2] - sts_numpy[0].r_at[:,2])**2).sum()/sts_numpy[i].n_at
+        msd_r_i = msd_x_i + msd_y_i + msd_z_i
+
+        # print(msd_r_i)
+        msd_av['r_all'].append(msd_x_i)
+        msd_av['x_all'].append(msd_y_i)
+        msd_av['y_all'].append(msd_z_i)
+        msd_av['z_all'].append(msd_r_i)
+
+        for i_type in sts_numpy[0].type_at:
+            mask = sts_numpy[i].i_type_at == i_type
+
+            msd_x_i = ((sts_numpy[i].r_at[:,0][mask] - sts_numpy[0].r_at[:,0][mask])**2).sum()/mask.sum()
+            msd_y_i = ((sts_numpy[i].r_at[:,1][mask] - sts_numpy[0].r_at[:,1][mask])**2).sum()/mask.sum()
+            msd_z_i = ((sts_numpy[i].r_at[:,2][mask] - sts_numpy[0].r_at[:,2][mask])**2).sum()/mask.sum()
+            msd_r_i = msd_x_i + msd_y_i + msd_z_i
+
+            msd_av[f'r_{i_type}'].append(msd_x_i)
+            msd_av[f'x_{i_type}'].append(msd_y_i)
+            msd_av[f'y_{i_type}'].append(msd_z_i)
+            msd_av[f'z_{i_type}'].append(msd_r_i)           
+
+    msd_av_df = pd.DataFrame(msd_av)
+
+    return msd_av_df
 
 
     # n_time_diff=n_write-1
