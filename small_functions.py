@@ -44,12 +44,12 @@ def get_cm_corrected_structure(st_numpy):
     # print(f"cm_y = {cm_y}")
     # print(f"cm_z = {cm_z}")
 
-    st_numpy_new = copy.deepcopy(st_numpy)
-    st_numpy_new.r_at[:,0] = st_numpy.r_at[:,0] - cm_x
-    st_numpy_new.r_at[:,1] = st_numpy.r_at[:,1] - cm_y
-    st_numpy_new.r_at[:,2] = st_numpy.r_at[:,2] - cm_z
+    st_numpy_cm = copy.deepcopy(st_numpy)
+    st_numpy_cm.r_at[:,0] = st_numpy.r_at[:,0] - cm_x
+    st_numpy_cm.r_at[:,1] = st_numpy.r_at[:,1] - cm_y
+    st_numpy_cm.r_at[:,2] = st_numpy.r_at[:,2] - cm_z
 
-    return st_numpy_new
+    return st_numpy_cm
 
 def get_unwrapped_structures(sts_numpy):
     """ 
@@ -59,7 +59,7 @@ def get_unwrapped_structures(sts_numpy):
     return: sts_numpy_new - list of structure objects with unwrapped coordinates
     """
 
-    sts_numpy_new = copy.deepcopy(sts_numpy) # deep copy of list with structure objects
+    sts_numpy_unwrapped = copy.deepcopy(sts_numpy) # deep copy of list with structure objects
     num_sts = len(sts_numpy) # number of structures
     # sts_numpy_new[0] = copy.deepcopy(sts_numpy[0]) # copying the first structure in list
     for i in range(1,num_sts):
@@ -67,7 +67,7 @@ def get_unwrapped_structures(sts_numpy):
         # st_numpy_i
         shift = np.zeros((sts_numpy[i].n_at,3)) # initializing array of atom shift with zeros
 
-        sts_numpy_new[i] = copy.deepcopy(sts_numpy[i]) # copying the input structure to the output structure
+        sts_numpy_unwrapped[i] = copy.deepcopy(sts_numpy[i]) # copying the input structure to the output structure
 
         r_at_wrapped = sts_numpy[i].r_at  # initial (wrapped within the periodic boundary conditions) coordinates of atoms
 
@@ -76,21 +76,22 @@ def get_unwrapped_structures(sts_numpy):
         dx_arr = sts_numpy[i].r_at[:,0] - sts_numpy[i-1].r_at[:,0] # array of diferrences of coordinates in x direction
         dy_arr = sts_numpy[i].r_at[:,1] - sts_numpy[i-1].r_at[:,1] # array of diferrences of coordinates in y direction
         dz_arr = sts_numpy[i].r_at[:,2] - sts_numpy[i-1].r_at[:,2] # array of diferrences of coordinates in z direction
-        for iat, dx, dy, dz in zip(range(len(sts_numpy[i].n_at)), dx_arr, dy_arr, dz_arr):                                                                                                                                                                                            5 vcvffrfv
-            if (dx >  sts_numpy[i-1].sizex/2): shift[iat,0] = shift[iat,0] - 0.5*(sts_numpy[i].sizex + sts_numpy[i-1].sizex)
-            if (dx < -sts_numpy[i-1].sizex/2): shift[iat,0] = shift[iat,0] + 0.5*(sts_numpy[i].sizex + sts_numpy[i-1].sizex)
-            if (dy >  sts_numpy[i-1].sizey/2): shift[iat,1] = shift[iat,1] - 0.5*(sts_numpy[i].sizey + sts_numpy[i-1].sizey)
-            if (dy < -sts_numpy[i-1].sizey/2): shift[iat,1] = shift[iat,1] + 0.5*(sts_numpy[i].sizey + sts_numpy[i-1].sizey)
-            if (dz >  sts_numpy[i-1].sizez/2): shift[iat,2] = shift[iat,2] - 0.5*(sts_numpy[i].sizez + sts_numpy[i-1].sizez)
-            if (dz < -sts_numpy[i-1].sizez/2): shift[iat,2] = shift[iat,2] + 0.5*(sts_numpy[i].sizez + sts_numpy[i-1].sizez) 
+        # for iat, dx, dy, dz in zip(range(sts_numpy[i].n_at), dx_arr, dy_arr, dz_arr):                              
+        for iat in range(sts_numpy[i].n_at):                              
+            if (dx_arr[iat] >  sts_numpy[i-1].sizex/2): shift[iat,0] = shift[iat,0] - 0.5*(sts_numpy[i].sizex + sts_numpy[i-1].sizex)
+            if (dx_arr[iat] < -sts_numpy[i-1].sizex/2): shift[iat,0] = shift[iat,0] + 0.5*(sts_numpy[i].sizex + sts_numpy[i-1].sizex)
+            if (dy_arr[iat] >  sts_numpy[i-1].sizey/2): shift[iat,1] = shift[iat,1] - 0.5*(sts_numpy[i].sizey + sts_numpy[i-1].sizey)
+            if (dy_arr[iat] < -sts_numpy[i-1].sizey/2): shift[iat,1] = shift[iat,1] + 0.5*(sts_numpy[i].sizey + sts_numpy[i-1].sizey)
+            if (dz_arr[iat] >  sts_numpy[i-1].sizez/2): shift[iat,2] = shift[iat,2] - 0.5*(sts_numpy[i].sizez + sts_numpy[i-1].sizez)
+            if (dz_arr[iat] < -sts_numpy[i-1].sizez/2): shift[iat,2] = shift[iat,2] + 0.5*(sts_numpy[i].sizez + sts_numpy[i-1].sizez) 
 
-        r_at_unwrapped[:,0] = sts_numpy_new[i-1].r_at[:,0] + (sts_numpy[i].r_at[:,0] + shift[:,0] - sts_numpy[i-1].r_at[:,0])     
-        r_at_unwrapped[:,1] = sts_numpy_new[i-1].r_at[:,1] + (sts_numpy[i].r_at[:,1] + shift[:,1] - sts_numpy[i-1].r_at[:,1])     
-        r_at_unwrapped[:,2] = sts_numpy_new[i-1].r_at[:,2] + (sts_numpy[i].r_at[:,2] + shift[:,2] - sts_numpy[i-1].r_at[:,2])     
+        r_at_unwrapped[:,0] = sts_numpy_unwrapped[i-1].r_at[:,0] + (sts_numpy[i].r_at[:,0] + shift[:,0] - sts_numpy[i-1].r_at[:,0])     
+        r_at_unwrapped[:,1] = sts_numpy_unwrapped[i-1].r_at[:,1] + (sts_numpy[i].r_at[:,1] + shift[:,1] - sts_numpy[i-1].r_at[:,1])     
+        r_at_unwrapped[:,2] = sts_numpy_unwrapped[i-1].r_at[:,2] + (sts_numpy[i].r_at[:,2] + shift[:,2] - sts_numpy[i-1].r_at[:,2])     
 
-        sts_numpy_new[i].r_at = r_at_unwrapped
+        sts_numpy_unwrapped[i].r_at = r_at_unwrapped
 
-    return sts_numpy_new
+    return sts_numpy_unwrapped
 
 
 def calc_non_averaged_msd(sts_numpy, dt):
@@ -108,21 +109,18 @@ def calc_non_averaged_msd(sts_numpy, dt):
     return pandas dataframe        
     """
 
-    msd_r = {}
-    msd_x = {} 
-    msd_y = {} 
-    msd_z = {} 
+    msd = {}
 
-    msd_r['all'] = []
-    msd_x['all'] = []
-    msd_y['all'] = []
-    msd_z['all'] = []
+    msd['r_all'] = []
+    msd['x_all'] = []
+    msd['y_all'] = []
+    msd['z_all'] = []
 
     for i_type in sts_numpy[0].type_at:
-        msd_r[str(i_type)] = []
-        msd_x[str(i_type)] = []
-        msd_y[str(i_type)] = []
-        msd_z[str(i_type)] = []
+        msd[f'r_{i_type}'] = []
+        msd[f'x_{i_type}'] = []
+        msd[f'y_{i_type}'] = []
+        msd[f'z_{i_type}'] = []
 
     num_sts = len(sts_numpy)
     for i in range(num_sts):
@@ -131,10 +129,11 @@ def calc_non_averaged_msd(sts_numpy, dt):
         msd_z_i = ((sts_numpy[i].r_at[:,2] - sts_numpy[0].r_at[:,2])**2).sum()/sts_numpy[i].n_at
         msd_r_i = msd_x_i + msd_y_i + msd_z_i
 
-        msd_x['all'].append(msd_x_i)
-        msd_y['all'].append(msd_y_i)
-        msd_z['all'].append(msd_z_i)
-        msd_r['all'].append(msd_r_i)
+        # print(msd_r_i)
+        msd['r_all'].append(msd_x_i)
+        msd['x_all'].append(msd_y_i)
+        msd['y_all'].append(msd_z_i)
+        msd['z_all'].append(msd_r_i)
 
         for i_type in sts_numpy[0].type_at:
             mask = sts_numpy[i].i_type_at == i_type
@@ -144,53 +143,51 @@ def calc_non_averaged_msd(sts_numpy, dt):
             msd_z_i = ((sts_numpy[i].r_at[:,2][mask] - sts_numpy[0].r_at[:,2][mask])**2).sum()/mask.sum()
             msd_r_i = msd_x_i + msd_y_i + msd_z_i
 
-            msd_x[str(i_type)].append(msd_x_i)
-            msd_y[str(i_type)].append(msd_y_i)
-            msd_z[str(i_type)].append(msd_z_i)
-            msd_r[str(i_type)].append(msd_r_i)           
-
-    msd = {'msd_r': msd_r, 'msd_x': msd_x, 'msd_y': msd_y, 'msd_z': msd_z}
+            msd[f'r_{i_type}'].append(msd_x_i)
+            msd[f'x_{i_type}'].append(msd_y_i)
+            msd[f'y_{i_type}'].append(msd_z_i)
+            msd[f'z_{i_type}'].append(msd_r_i)           
 
     msd_df = pd.DataFrame(msd)
 
     return msd_df
 
 
-    n_time_diff=n_write-1
+    # n_time_diff=n_write-1
 
-	do i_time_diff=1,n_time_diff
+	# do i_time_diff=1,n_time_diff
 
-	ww=0.0D0
-	ww_sort=0.0D0
-	do i_start=1,n_write-i_time_diff
-	i_end=i_start+i_time_diff
+	# ww=0.0D0
+	# ww_sort=0.0D0
+	# do i_start=1,n_write-i_time_diff
+	# i_end=i_start+i_time_diff
 
-	    w=0.0D0
-	    w_sort=0.0D0
-	    n_at_sort=0
-	    do i_at=1,n_at
-	    d =     (r_at_set(1,i_at,i_end)-r_at_set(1,i_at,i_start))**2 + 
-     :		(r_at_set(2,i_at,i_end)-r_at_set(2,i_at,i_start))**2 + 
-     :		(r_at_set(3,i_at,i_end)-r_at_set(3,i_at,i_start))**2
-	    w=w+d
-	    i_sort=i_sort_at(i_at)
-	    w_sort(i_sort)=w_sort(i_sort)+d
-	    n_at_sort(i_sort)=n_at_sort(i_sort)+1
-    	    enddo
-    	w=w/dfloat(n_at)
-	ww=ww+w
-	    do i_sort=1,n_sort
-	    if(n_at_sort(i_sort).gt.0) then
-    	    w_sort(i_sort)=w_sort(i_sort)/dfloat(n_at_sort(i_sort))
-	    ww_sort(i_sort)=ww_sort(i_sort)+w_sort(i_sort)
-	    endif
-	    enddo
-	enddo
-	ww=ww/dfloat(n_write-i_time_diff)
-    	dr_at(i_time_diff)=ww
-	    do i_sort=1,n_sort
-	    if(n_at_sort(i_sort).gt.0) then
-	    dr_at_sort(i_time_diff,i_sort)=ww_sort(i_sort)/dfloat(n_write-i_time_diff)
-	    endif
-	    enddo
-	enddo
+	#     w=0.0D0
+	#     w_sort=0.0D0
+	#     n_at_sort=0
+	#     do i_at=1,n_at
+	#     d =     (r_at_set(1,i_at,i_end)-r_at_set(1,i_at,i_start))**2 + 
+    #  :		(r_at_set(2,i_at,i_end)-r_at_set(2,i_at,i_start))**2 + 
+    #  :		(r_at_set(3,i_at,i_end)-r_at_set(3,i_at,i_start))**2
+	#     w=w+d
+	#     i_sort=i_sort_at(i_at)
+	#     w_sort(i_sort)=w_sort(i_sort)+d
+	#     n_at_sort(i_sort)=n_at_sort(i_sort)+1
+    # 	    enddo
+    # 	w=w/dfloat(n_at)
+	# ww=ww+w
+	#     do i_sort=1,n_sort
+	#     if(n_at_sort(i_sort).gt.0) then
+    # 	    w_sort(i_sort)=w_sort(i_sort)/dfloat(n_at_sort(i_sort))
+	#     ww_sort(i_sort)=ww_sort(i_sort)+w_sort(i_sort)
+	#     endif
+	#     enddo
+	# enddo
+	# ww=ww/dfloat(n_write-i_time_diff)
+    # 	dr_at(i_time_diff)=ww
+	#     do i_sort=1,n_sort
+	#     if(n_at_sort(i_sort).gt.0) then
+	#     dr_at_sort(i_time_diff,i_sort)=ww_sort(i_sort)/dfloat(n_write-i_time_diff)
+	#     endif
+	#     enddo
+	# enddo

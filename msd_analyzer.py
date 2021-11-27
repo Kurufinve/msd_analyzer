@@ -26,12 +26,21 @@ for dmp in dumps:
     st_numpy = convert_structure_to_numpy(st) # converting attributes of structure class into the numpy array
     structures.append(st_numpy)
 
-# getting the list of structures with corrected center of mass 
-cm_corrected_structures = []
-for st in structures:
-    cm_corrected_st = get_cm_corrected_structure(st_numpy)  # correcting the position of center of mass in structure 
-    cm_corrected_structures.append(cm_corrected_st)
+# getting the list of structures with unwrapped positions
+unwrapped_structures = get_unwrapped_structures(structures) # unwrapping the atomic coordinates in structures
+
+# getting the list of structures with unwrapped positions and corrected center of mass 
+cm_corrected_unwrapped_structures = []
+for uwst in unwrapped_structures:
+    cm_corrected_st = get_cm_corrected_structure(uwst)  # correcting the position of center of mass in structure 
+    cm_corrected_unwrapped_structures.append(cm_corrected_st)
 
 # getting the list of structures with corrected center of mass and unwrapped positions
-cm_corrected_unwrapped_structures = get_unwrapped_structures(cm_corrected_structures) # unwrapping the atomic coordinates in structures
+# cm_corrected_unwrapped_structures = get_unwrapped_structures(cm_corrected_structures) # unwrapping the atomic coordinates in structures
 
+dt = 75
+msd_cm_corrected = calc_non_averaged_msd(cm_corrected_unwrapped_structures, dt)
+msd_non_corrected = calc_non_averaged_msd(unwrapped_structures, dt)
+
+print(msd_cm_corrected)
+print(msd_non_corrected)
