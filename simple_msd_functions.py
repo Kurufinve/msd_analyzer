@@ -1,5 +1,5 @@
 """
-This module contains relatively simple functions for calculation of mean-squared displacements (MSD) of atoms.
+This module contains relatively simple functions needed for calculation of mean-squared displacements (MSD) of atoms from series of time snapshots.
 The "simple" means that functions do not use sophisticated algorithms for recognition of different diffusion modes,
 and can be correctly applied only if the dependence of MSD from modeling time is linear.
 """
@@ -96,11 +96,11 @@ def get_unwrapped_structures(sts_numpy):
     return sts_numpy_unwrapped
 
 
-def calc_non_averaged_msd(sts_numpy, dt):
+def calc_non_averaged_msd(sts_numpy, dt=7.5**(-11)):
     """
     This function calculates the mean-squared displacements (msd) of atoms in structures from sts_numpy list
     with respect to the first structure in sts_numpy list.
-    get: sts_numpy, dt - list of structure objects with unwrapped coordinates and time difference in ps between structures, respectively
+    get: sts_numpy, dt - list of structure objects with unwrapped coordinates and time difference in seconds between structures, respectively
     return: pandas dataframe, where the first column is time, 
             the second column is non-averaged msd of all atoms,
             the third column is non-averaged msd of all atoms in x direction,
@@ -112,31 +112,34 @@ def calc_non_averaged_msd(sts_numpy, dt):
 
     msd = {}
 
-    msd['time'] = []
-    msd['r_all'] = []
-    msd['x_all'] = []
-    msd['y_all'] = []
-    msd['z_all'] = []
+    msd['time, s'] = []
+    msd['r_all, A'] = []
+    msd['x_all, A'] = []
+    msd['y_all, A'] = []
+    msd['z_all, A'] = []
 
     for i_type in sts_numpy[0].type_at:
-        msd[f'r_{i_type}'] = []
-        msd[f'x_{i_type}'] = []
-        msd[f'y_{i_type}'] = []
-        msd[f'z_{i_type}'] = []
+        msd[f'r_{i_type}, A'] = []
+        msd[f'x_{i_type}, A'] = []
+        msd[f'y_{i_type}, A'] = []
+        msd[f'z_{i_type}, A'] = []
 
     num_sts = len(sts_numpy)
     for i in range(num_sts):
+        msd['time, s'].append(i*dt)
+
+        # calculating MSD for all atoms in structure
         msd_x_i = ((sts_numpy[i].r_at[:,0] - sts_numpy[0].r_at[:,0])**2).sum()/sts_numpy[i].n_at
         msd_y_i = ((sts_numpy[i].r_at[:,1] - sts_numpy[0].r_at[:,1])**2).sum()/sts_numpy[i].n_at
         msd_z_i = ((sts_numpy[i].r_at[:,2] - sts_numpy[0].r_at[:,2])**2).sum()/sts_numpy[i].n_at
         msd_r_i = msd_x_i + msd_y_i + msd_z_i
 
-        # print(msd_r_i)
-        msd['r_all'].append(msd_x_i)
-        msd['x_all'].append(msd_y_i)
-        msd['y_all'].append(msd_z_i)
-        msd['z_all'].append(msd_r_i)
+        msd['r_all, A'].append(msd_x_i)
+        msd['x_all, A'].append(msd_y_i)
+        msd['y_all, A'].append(msd_z_i)
+        msd['z_all, A'].append(msd_r_i)
 
+        # calculating MSD for each type of atom in structure
         for i_type in sts_numpy[0].type_at:
             mask = sts_numpy[i].i_type_at == i_type
 
@@ -145,17 +148,19 @@ def calc_non_averaged_msd(sts_numpy, dt):
             msd_z_i = ((sts_numpy[i].r_at[:,2][mask] - sts_numpy[0].r_at[:,2][mask])**2).sum()/mask.sum()
             msd_r_i = msd_x_i + msd_y_i + msd_z_i
 
-            msd[f'r_{i_type}'].append(msd_x_i)
-            msd[f'x_{i_type}'].append(msd_y_i)
-            msd[f'y_{i_type}'].append(msd_z_i)
-            msd[f'z_{i_type}'].append(msd_r_i)           
+            msd[f'r_{i_type}, A'].append(msd_x_i)
+            msd[f'x_{i_type}, A'].append(msd_y_i)
+            msd[f'y_{i_type}, A'].append(msd_z_i)
+            msd[f'z_{i_type}, A'].append(msd_r_i)           
 
     msd_df = pd.DataFrame(msd)
+    # msd_df.set_index('time', inplace = True)
+    msd_df.set_index('time, s')
 
     return msd_df
 
 
-def calc_averaged_msd(sts_numpy, dt):
+def calc_averaged_msd(sts_numpy, dt=7.5E-11):
 
     """
     This function calculates the averaged mean-squared displacements (msd) of atoms in structures from sts_numpy list
@@ -172,22 +177,23 @@ def calc_averaged_msd(sts_numpy, dt):
 
     msd_av = {}
 
-    msd_av['time'] = []
-    msd_av['r_all'] = []
-    msd_av['x_all'] = []
-    msd_av['y_all'] = []
-    msd_av['z_all'] = []
+    msd_av['time, s'] = []
+    msd_av['r_all, A'] = []
+    msd_av['x_all, A'] = []
+    msd_av['y_all, A'] = []
+    msd_av['z_all, A'] = []
 
     for i_type in sts_numpy[0].type_at:
-        msd_av[f'r_{i_type}'] = []
-        msd_av[f'x_{i_type}'] = []
-        msd_av[f'y_{i_type}'] = []
-        msd_av[f'z_{i_type}'] = []
+        msd_av[f'r_{i_type}, A'] = []
+        msd_av[f'x_{i_type}, A'] = []
+        msd_av[f'y_{i_type}, A'] = []
+        msd_av[f'z_{i_type}, A'] = []
 
     n_write = len(sts_numpy)
-    n_time_diff=n_write-1
+    n_time_diff=n_write
 
     for i_time_diff in range(n_time_diff):
+        msd_av['time, s'].append(i_time_diff*dt)
 
         # temporary working variables
         msd_x_i_w = 0.0
@@ -211,45 +217,52 @@ def calc_averaged_msd(sts_numpy, dt):
         for i_start in range(n_write-i_time_diff): 
             i_end = i_start + i_time_diff
 
+            # gaining the sum of MSD between the same times differences for all atoms
             msd_x_i_w += ((sts_numpy[i_end].r_at[:,0] - sts_numpy[i_start].r_at[:,0])**2).sum()/sts_numpy[i_end].n_at
             msd_y_i_w += ((sts_numpy[i_end].r_at[:,1] - sts_numpy[i_start].r_at[:,1])**2).sum()/sts_numpy[i_end].n_at
             msd_z_i_w += ((sts_numpy[i_end].r_at[:,2] - sts_numpy[i_start].r_at[:,2])**2).sum()/sts_numpy[i_end].n_at
             msd_r_i_w += msd_x_i_w + msd_y_i_w + msd_z_i_w
 
-            # print(msd_r_i)
-
-
+            # gaining the sum of differences between the same times differences for each type of atom
             for i_type in sts_numpy[0].type_at:
                 mask = sts_numpy[i_end].i_type_at == i_type
 
-                msd_x_i_type_w[f'r_{i_type}'] = ((sts_numpy[i_end].r_at[:,0][mask] - sts_numpy[i_start].r_at[:,0][mask])**2).sum()/mask.sum()
-                msd_y_i_type_w[f'x_{i_type}'] = ((sts_numpy[i_end].r_at[:,1][mask] - sts_numpy[i_start].r_at[:,1][mask])**2).sum()/mask.sum()
-                msd_z_i_type_w[f'y_{i_type}'] = ((sts_numpy[i_end].r_at[:,2][mask] - sts_numpy[i_start].r_at[:,2][mask])**2).sum()/mask.sum()
-                msd_r_i_type_w[f'z_{i_type}'] = msd_x_i_type_w[f'r_{i_type}'] + msd_y_i_type_w[f'x_{i_type}'] + msd_z_i_type_w[f'y_{i_type}']
+                msd_x_i_type_w[f'r_{i_type}'] += ((sts_numpy[i_end].r_at[:,0][mask] - sts_numpy[i_start].r_at[:,0][mask])**2).sum()/mask.sum()
+                msd_y_i_type_w[f'x_{i_type}'] += ((sts_numpy[i_end].r_at[:,1][mask] - sts_numpy[i_start].r_at[:,1][mask])**2).sum()/mask.sum()
+                msd_z_i_type_w[f'y_{i_type}'] += ((sts_numpy[i_end].r_at[:,2][mask] - sts_numpy[i_start].r_at[:,2][mask])**2).sum()/mask.sum()
+                msd_r_i_type_w[f'z_{i_type}'] += msd_x_i_type_w[f'r_{i_type}'] + msd_y_i_type_w[f'x_{i_type}'] + msd_z_i_type_w[f'y_{i_type}']
 
-
+        # calculating MSD for all atoms in structure averaged over the same time differences
         msd_x_i_av = msd_x_i_w/float(n_write-i_time_diff)
         msd_y_i_av = msd_y_i_w/float(n_write-i_time_diff)
         msd_z_i_av = msd_z_i_w/float(n_write-i_time_diff)
         msd_r_i_av = msd_r_i_w/float(n_write-i_time_diff)
 
-        msd_av['r_all'].append(msd_x_i_av)
-        msd_av['x_all'].append(msd_y_i_av)
-        msd_av['y_all'].append(msd_z_i_av)
-        msd_av['z_all'].append(msd_r_i_av)
+        msd_av['r_all, A'].append(msd_x_i_av)
+        msd_av['x_all, A'].append(msd_y_i_av)
+        msd_av['y_all, A'].append(msd_z_i_av)
+        msd_av['z_all, A'].append(msd_r_i_av)
 
+        # calculating MSD for each type of atom in structure averaged over the same time differences 
         for i_type in sts_numpy[0].type_at:
             msd_x_i_type_av = msd_x_i_type_w[f'r_{i_type}']/float(n_write-i_time_diff)
             msd_y_i_type_av = msd_y_i_type_w[f'x_{i_type}']/float(n_write-i_time_diff)
             msd_z_i_type_av = msd_z_i_type_w[f'y_{i_type}']/float(n_write-i_time_diff)
             msd_r_i_type_av = msd_r_i_type_w[f'z_{i_type}']/float(n_write-i_time_diff)        
 
-            msd_av[f'r_{i_type}'].append(msd_x_i_type_av)
-            msd_av[f'x_{i_type}'].append(msd_y_i_type_av)
-            msd_av[f'y_{i_type}'].append(msd_z_i_type_av)
-            msd_av[f'z_{i_type}'].append(msd_r_i_type_av)  
+            msd_av[f'r_{i_type}, A'].append(msd_x_i_type_av)
+            msd_av[f'x_{i_type}, A'].append(msd_y_i_type_av)
+            msd_av[f'y_{i_type}, A'].append(msd_z_i_type_av)
+            msd_av[f'z_{i_type}, A'].append(msd_r_i_type_av)  
 
     msd_av_df = pd.DataFrame(msd_av)
-    msd_av_df.set_index
+    # msd_av_df.set_index('time', inplace = True)
+    msd_av_df.set_index('time, s')
 
     return msd_av_df
+
+def fit_msd_linear(msd_df):
+    """
+    This function fit
+    """
+    pass

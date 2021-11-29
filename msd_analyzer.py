@@ -5,6 +5,8 @@ from simple_msd_functions import *
 
 print('Hello!')
 
+""" Start block with reading data from r_at files"""
+
 # reading the structure in rv_at fromat from /dataw directory in order to get info about masses
 path2rvat = os.getcwd()+'/dataw/'
 rvats = os.listdir(path2rvat)
@@ -38,11 +40,41 @@ for uwst in unwrapped_structures:
 # getting the list of structures with corrected center of mass and unwrapped positions
 # cm_corrected_unwrapped_structures = get_unwrapped_structures(cm_corrected_structures) # unwrapping the atomic coordinates in structures
 
-dt = 75
+# calculating the non-averaged and averaged msd 
+dt = 7.5E-11
 msd_cm_corrected = calc_non_averaged_msd(cm_corrected_unwrapped_structures, dt)
 msd_av_cm_corrected = calc_averaged_msd(cm_corrected_unwrapped_structures, dt)
-# msd_non_corrected = calc_non_averaged_msd(unwrapped_structures, dt)
+msd = calc_non_averaged_msd(unwrapped_structures, dt)
+msd_av = calc_averaged_msd(unwrapped_structures, dt)
 
-print(msd_cm_corrected)
-print(msd_av_cm_corrected)
+# writing the data into csv and excel files
+msd.to_csv('msd.csv')
+msd_av.to_csv('msd_averaged.csv')
+msd_cm_corrected.to_csv('msd_cm_corrected.csv')
+msd_av_cm_corrected.to_csv('msd_averaged_cm_corrected.csv')
+
+msd.to_excel('msd.xlsx')
+msd_av.to_excel('msd_averaged.xlsx')
+msd_cm_corrected.to_excel('msd_cm_corrected.xlsx')
+msd_av_cm_corrected.to_excel('msd_averaged_cm_corrected.xlsx')
+
+""" End block with reading data from r_at files"""
+
+
+# # reading the data from csv files
+# # import pandas as pd
+# # msd_cm_corrected = pd.read_csv('msd_cm_corrected.csv')
+# # msd_av_cm_corrected = pd.read_csv('msd_averaged_cm_corrected.csv')
+# # msd_cm_corrected.to_excel('msd_cm_corrected.csv')
+# # msd_av_cm_corrected.to_excel('msd_averaged_cm_corrected.csv')
+
+
+# reading the data from excel files
+import pandas as pd
+msd_cm_corrected = pd.read_excel('msd_cm_corrected.xlsx')
+msd_av_cm_corrected = pd.read_excel('msd_averaged_cm_corrected.xlsx')
+
+
+print(msd_cm_corrected.describe())
+print(msd_av_cm_corrected.describe())
 # print(msd_non_corrected)
