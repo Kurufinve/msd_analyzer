@@ -40,7 +40,9 @@ for uwst in unwrapped_structures:
 
 dt = 75
 msd_cm_corrected = calc_non_averaged_msd(cm_corrected_unwrapped_structures, dt)
-msd_non_corrected = calc_non_averaged_msd(unwrapped_structures, dt)
+msd_av_cm_corrected = calc_averaged_msd(cm_corrected_unwrapped_structures, dt)
+# msd_non_corrected = calc_non_averaged_msd(unwrapped_structures, dt)
 
 print(msd_cm_corrected)
-print(msd_non_corrected)
+print(msd_av_cm_corrected)
+# print(msd_non_corrected)

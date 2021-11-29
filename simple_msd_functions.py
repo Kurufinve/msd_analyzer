@@ -182,31 +182,79 @@ def calc_averaged_msd(sts_numpy, dt):
         msd_av[f'y_{i_type}'] = []
         msd_av[f'z_{i_type}'] = []
 
-    num_sts = len(sts_numpy)
-    for i in range(num_sts):
-        msd_x_i = ((sts_numpy[i].r_at[:,0] - sts_numpy[0].r_at[:,0])**2).sum()/sts_numpy[i].n_at
-        msd_y_i = ((sts_numpy[i].r_at[:,1] - sts_numpy[0].r_at[:,1])**2).sum()/sts_numpy[i].n_at
-        msd_z_i = ((sts_numpy[i].r_at[:,2] - sts_numpy[0].r_at[:,2])**2).sum()/sts_numpy[i].n_at
-        msd_r_i = msd_x_i + msd_y_i + msd_z_i
+    n_write = len(sts_numpy)
+    n_time_diff=n_write-1
 
-        # print(msd_r_i)
-        msd_av['r_all'].append(msd_x_i)
-        msd_av['x_all'].append(msd_y_i)
-        msd_av['y_all'].append(msd_z_i)
-        msd_av['z_all'].append(msd_r_i)
+    for i_time_diff in range(n_time_diff):
+
+        # temporary working variables
+        msd_x_i_w = 0.0
+        msd_y_i_w = 0.0
+        msd_z_i_w = 0.0
+        msd_r_i_w = 0.0
+
+        # dictionaries with temporary working variables
+        msd_x_i_type_w = {}
+        msd_y_i_type_w = {}
+        msd_z_i_type_w = {}
+        msd_r_i_type_w = {}
+
+        msd_x_i_type_av = {}
+        msd_y_i_type_av = {}
+        msd_z_i_type_av = {}
+        msd_r_i_type_av = {}
 
         for i_type in sts_numpy[0].type_at:
-            mask = sts_numpy[i].i_type_at == i_type
+            msd_x_i_type_w[f'r_{i_type}'] = 0.0
+            msd_y_i_type_w[f'x_{i_type}'] = 0.0
+            msd_z_i_type_w[f'y_{i_type}'] = 0.0
+            msd_r_i_type_w[f'z_{i_type}'] = 0.0
 
-            msd_x_i = ((sts_numpy[i].r_at[:,0][mask] - sts_numpy[0].r_at[:,0][mask])**2).sum()/mask.sum()
-            msd_y_i = ((sts_numpy[i].r_at[:,1][mask] - sts_numpy[0].r_at[:,1][mask])**2).sum()/mask.sum()
-            msd_z_i = ((sts_numpy[i].r_at[:,2][mask] - sts_numpy[0].r_at[:,2][mask])**2).sum()/mask.sum()
-            msd_r_i = msd_x_i + msd_y_i + msd_z_i
+            msd_x_i_type_av[f'r_{i_type}'] = 0.0
+            msd_y_i_type_av[f'x_{i_type}'] = 0.0
+            msd_z_i_type_av[f'y_{i_type}'] = 0.0
+            msd_r_i_type_av[f'z_{i_type}'] = 0.0
 
-            msd_av[f'r_{i_type}'].append(msd_x_i)
-            msd_av[f'x_{i_type}'].append(msd_y_i)
-            msd_av[f'y_{i_type}'].append(msd_z_i)
-            msd_av[f'z_{i_type}'].append(msd_r_i)           
+        for i_start in range(n_write-i_time_diff): 
+            i_end = i_start + i_time_diff
+
+            msd_x_i_w += ((sts_numpy[i_end].r_at[:,0] - sts_numpy[i_start].r_at[:,0])**2).sum()/sts_numpy[i_end].n_at
+            msd_y_i_w += ((sts_numpy[i_end].r_at[:,1] - sts_numpy[i_start].r_at[:,1])**2).sum()/sts_numpy[i_end].n_at
+            msd_z_i_w += ((sts_numpy[i_end].r_at[:,2] - sts_numpy[i_start].r_at[:,2])**2).sum()/sts_numpy[i_end].n_at
+            msd_r_i_w += msd_x_i_w + msd_y_i_w + msd_z_i_w
+
+            # print(msd_r_i)
+
+
+            for i_type in sts_numpy[0].type_at:
+                mask = sts_numpy[i_end].i_type_at == i_type
+
+                msd_x_i_type_w[f'r_{i_type}'] = ((sts_numpy[i_end].r_at[:,0][mask] - sts_numpy[i_start].r_at[:,0][mask])**2).sum()/mask.sum()
+                msd_y_i_type_w[f'x_{i_type}'] = ((sts_numpy[i_end].r_at[:,1][mask] - sts_numpy[i_start].r_at[:,1][mask])**2).sum()/mask.sum()
+                msd_z_i_type_w[f'y_{i_type}'] = ((sts_numpy[i_end].r_at[:,2][mask] - sts_numpy[i_start].r_at[:,2][mask])**2).sum()/mask.sum()
+                msd_r_i_type_w[f'z_{i_type}'] = msd_x_i_type_w[f'r_{i_type}'] + msd_y_i_type_w[f'x_{i_type}'] + msd_z_i_type_w[f'y_{i_type}']
+
+
+        msd_x_i_av = msd_x_i_w/float(n_write-i_time_diff)
+        msd_y_i_av = msd_y_i_w/float(n_write-i_time_diff)
+        msd_z_i_av = msd_z_i_w/float(n_write-i_time_diff)
+        msd_r_i_av = msd_r_i_w/float(n_write-i_time_diff)
+
+        msd_av['r_all'].append(msd_x_i_av)
+        msd_av['x_all'].append(msd_y_i_av)
+        msd_av['y_all'].append(msd_z_i_av)
+        msd_av['z_all'].append(msd_r_i_av)
+
+        for i_type in sts_numpy[0].type_at:
+            msd_x_i_type_av[f'r_{i_type}'] = msd_x_i_type_w[f'r_{i_type}']/float(n_write-i_time_diff)
+            msd_y_i_type_av[f'x_{i_type}'] = msd_y_i_type_w[f'x_{i_type}']/float(n_write-i_time_diff)
+            msd_z_i_type_av[f'y_{i_type}'] = msd_z_i_type_w[f'y_{i_type}']/float(n_write-i_time_diff)
+            msd_r_i_type_av[f'z_{i_type}'] = msd_r_i_type_w[f'z_{i_type}']/float(n_write-i_time_diff)        
+
+            msd_av[f'r_{i_type}'].append(msd_x_i_type_av[f'r_{i_type}'])
+            msd_av[f'x_{i_type}'].append(msd_y_i_type_av[f'x_{i_type}'])
+            msd_av[f'y_{i_type}'].append(msd_z_i_type_av[f'y_{i_type}'])
+            msd_av[f'z_{i_type}'].append(msd_r_i_type_av[f'z_{i_type}'])  
 
     msd_av_df = pd.DataFrame(msd_av)
 
