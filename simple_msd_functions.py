@@ -112,6 +112,7 @@ def calc_non_averaged_msd(sts_numpy, dt):
 
     msd = {}
 
+    msd['time'] = []
     msd['r_all'] = []
     msd['x_all'] = []
     msd['y_all'] = []
@@ -159,7 +160,7 @@ def calc_averaged_msd(sts_numpy, dt):
     """
     This function calculates the averaged mean-squared displacements (msd) of atoms in structures from sts_numpy list
     with respect to the first structure in sts_numpy list.
-    get: sts_numpy, dt - list of structure objects with unwrapped coordinates and time difference in ps between structures, respectively
+    get: sts_numpy, dt - list of structure objects with unwrapped coordinates and time difference in seconds between structure snapshots, respectively
     return: pandas dataframe, where the first column is time, 
             the second column is non-averaged msd of all atoms,
             the third column is non-averaged msd of all atoms in x direction,
@@ -171,6 +172,7 @@ def calc_averaged_msd(sts_numpy, dt):
 
     msd_av = {}
 
+    msd_av['time'] = []
     msd_av['r_all'] = []
     msd_av['x_all'] = []
     msd_av['y_all'] = []
@@ -199,21 +201,12 @@ def calc_averaged_msd(sts_numpy, dt):
         msd_z_i_type_w = {}
         msd_r_i_type_w = {}
 
-        msd_x_i_type_av = {}
-        msd_y_i_type_av = {}
-        msd_z_i_type_av = {}
-        msd_r_i_type_av = {}
-
+        # assigning zero values to the dictionaries with temporary working variables
         for i_type in sts_numpy[0].type_at:
             msd_x_i_type_w[f'r_{i_type}'] = 0.0
             msd_y_i_type_w[f'x_{i_type}'] = 0.0
             msd_z_i_type_w[f'y_{i_type}'] = 0.0
             msd_r_i_type_w[f'z_{i_type}'] = 0.0
-
-            msd_x_i_type_av[f'r_{i_type}'] = 0.0
-            msd_y_i_type_av[f'x_{i_type}'] = 0.0
-            msd_z_i_type_av[f'y_{i_type}'] = 0.0
-            msd_r_i_type_av[f'z_{i_type}'] = 0.0
 
         for i_start in range(n_write-i_time_diff): 
             i_end = i_start + i_time_diff
@@ -246,56 +239,17 @@ def calc_averaged_msd(sts_numpy, dt):
         msd_av['z_all'].append(msd_r_i_av)
 
         for i_type in sts_numpy[0].type_at:
-            msd_x_i_type_av[f'r_{i_type}'] = msd_x_i_type_w[f'r_{i_type}']/float(n_write-i_time_diff)
-            msd_y_i_type_av[f'x_{i_type}'] = msd_y_i_type_w[f'x_{i_type}']/float(n_write-i_time_diff)
-            msd_z_i_type_av[f'y_{i_type}'] = msd_z_i_type_w[f'y_{i_type}']/float(n_write-i_time_diff)
-            msd_r_i_type_av[f'z_{i_type}'] = msd_r_i_type_w[f'z_{i_type}']/float(n_write-i_time_diff)        
+            msd_x_i_type_av = msd_x_i_type_w[f'r_{i_type}']/float(n_write-i_time_diff)
+            msd_y_i_type_av = msd_y_i_type_w[f'x_{i_type}']/float(n_write-i_time_diff)
+            msd_z_i_type_av = msd_z_i_type_w[f'y_{i_type}']/float(n_write-i_time_diff)
+            msd_r_i_type_av = msd_r_i_type_w[f'z_{i_type}']/float(n_write-i_time_diff)        
 
-            msd_av[f'r_{i_type}'].append(msd_x_i_type_av[f'r_{i_type}'])
-            msd_av[f'x_{i_type}'].append(msd_y_i_type_av[f'x_{i_type}'])
-            msd_av[f'y_{i_type}'].append(msd_z_i_type_av[f'y_{i_type}'])
-            msd_av[f'z_{i_type}'].append(msd_r_i_type_av[f'z_{i_type}'])  
+            msd_av[f'r_{i_type}'].append(msd_x_i_type_av)
+            msd_av[f'x_{i_type}'].append(msd_y_i_type_av)
+            msd_av[f'y_{i_type}'].append(msd_z_i_type_av)
+            msd_av[f'z_{i_type}'].append(msd_r_i_type_av)  
 
     msd_av_df = pd.DataFrame(msd_av)
+    msd_av_df.set_index
 
     return msd_av_df
-
-
-    # n_time_diff=n_write-1
-
-	# do i_time_diff=1,n_time_diff
-
-	# ww=0.0D0
-	# ww_sort=0.0D0
-	# do i_start=1,n_write-i_time_diff
-	# i_end=i_start+i_time_diff
-
-	#     w=0.0D0
-	#     w_sort=0.0D0
-	#     n_at_sort=0
-	#     do i_at=1,n_at
-	#     d =     (r_at_set(1,i_at,i_end)-r_at_set(1,i_at,i_start))**2 + 
-    #  :		(r_at_set(2,i_at,i_end)-r_at_set(2,i_at,i_start))**2 + 
-    #  :		(r_at_set(3,i_at,i_end)-r_at_set(3,i_at,i_start))**2
-	#     w=w+d
-	#     i_sort=i_sort_at(i_at)
-	#     w_sort(i_sort)=w_sort(i_sort)+d
-	#     n_at_sort(i_sort)=n_at_sort(i_sort)+1
-    # 	    enddo
-    # 	w=w/dfloat(n_at)
-	# ww=ww+w
-	#     do i_sort=1,n_sort
-	#     if(n_at_sort(i_sort).gt.0) then
-    # 	    w_sort(i_sort)=w_sort(i_sort)/dfloat(n_at_sort(i_sort))
-	#     ww_sort(i_sort)=ww_sort(i_sort)+w_sort(i_sort)
-	#     endif
-	#     enddo
-	# enddo
-	# ww=ww/dfloat(n_write-i_time_diff)
-    # 	dr_at(i_time_diff)=ww
-	#     do i_sort=1,n_sort
-	#     if(n_at_sort(i_sort).gt.0) then
-	#     dr_at_sort(i_time_diff,i_sort)=ww_sort(i_sort)/dfloat(n_write-i_time_diff)
-	#     endif
-	#     enddo
-	# enddo
