@@ -33,13 +33,13 @@ class structure():
         self.mass_at = [] # n_type_at array of masses of different atom types (floats)
 
     def __str__(self):
-        string = (
-                    f"Structure with {self.n_at} atoms and {self.n_type_at} atom types\n"
-                    # f" Sizes: {self.sizex} {self.sizey} {self.sizez}\n"
-                    # f"Coordinates of atoms in angstrom:\n"
-                    # f"{'\n'.join([str(r) for r in self.r_at])}"
-        )
-        return string
+        nl = '\n'
+        return  f"Structure with {self.n_at} atoms and {self.n_type_at} atom types\n" + \
+                f"Sizes: {self.sizex} {self.sizey} {self.sizez}\n" + \
+                f"Coordinates of atoms in angstroms:\n" + \
+                f"{nl.join([str(r[0])+' '+str(r[1])+' '+str(r[2]) for r in self.r_at[0:5]])}\n" + \
+                f" ... \n" + \
+                f"{nl.join([str(r[0])+' '+str(r[1])+' '+str(r[2]) for r in self.r_at[-5:]])}\n"
 
     # def mass_at
 

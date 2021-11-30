@@ -5,6 +5,14 @@ from simple_msd_functions import *
 
 # print('Hello!')
 
+""" Start test block"""
+# path2rvat = os.getcwd()+'/dataw/'
+# rvats = os.listdir(path2rvat)
+# rvat = rvats[0]
+# st_parent = read_rv_at(path2rvat+rvat)
+# print(st_parent)
+""" End test block"""
+
 """ Start block with reading data from r_at files and writing it to csv and excel"""
 
 # # reading the structure in rv_at fromat from /dataw directory in order to get info about masses
@@ -61,21 +69,21 @@ from simple_msd_functions import *
 """ End block with reading data from r_at files and writing it to csv and excel"""
 
 
-# # reading the data from csv files
-# # import pandas as pd
-# # msd_cm_corrected = pd.read_csv('msd_cm_corrected.csv')
-# # msd_av_cm_corrected = pd.read_csv('msd_averaged_cm_corrected.csv')
-# # msd_cm_corrected.to_excel('msd_cm_corrected.csv')
-# # msd_av_cm_corrected.to_excel('msd_averaged_cm_corrected.csv')
+# # # reading the data from csv files
+# # # import pandas as pd
+# # # msd_cm_corrected = pd.read_csv('msd_cm_corrected.csv')
+# # # msd_av_cm_corrected = pd.read_csv('msd_averaged_cm_corrected.csv')
+# # # msd_cm_corrected.to_excel('msd_cm_corrected.csv')
+# # # msd_av_cm_corrected.to_excel('msd_averaged_cm_corrected.csv')
 
 
-# reading the data from excel files
-import pandas as pd
-# msd_cm_corrected = pd.read_excel('msd_cm_corrected.xlsx')
-msd_av_cm_corrected = pd.read_excel('msd_averaged_cm_corrected.xlsx')
+# # reading the data from excel files
+# import pandas as pd
+# # msd_cm_corrected = pd.read_excel('msd_cm_corrected.xlsx')
+# msd_av_cm_corrected = pd.read_excel('msd_averaged_cm_corrected.xlsx')
 
-fit_and_plot_msd_linear(msd_av_cm_corrected)
+# fit_and_plot_msd_linear(msd_av_cm_corrected)
 
-# print(msd_cm_corrected.describe())
-# print(msd_av_cm_corrected.describe())
-# print(msd_non_corrected)
+# # print(msd_cm_corrected.describe())
+# # print(msd_av_cm_corrected.describe())
+# # print(msd_non_corrected)
