@@ -28,6 +28,7 @@ from simple_msd_functions import *
 # structures = []
 # for dmp in dumps:
 #     st = read_r_at(path2dumps+dmp)
+#     st.mass_at = st_parent.mass_at      # asigning atomic masses from parent rv_at structure
 #     st.i_mass_at = st_parent.i_mass_at  # asigning atomic masses from parent rv_at structure
 #     st.i_at = st_parent.i_at            # asigning atomic indexes from parent rv_at structure
 #     st.i_type_at = st_parent.i_type_at  # asigning atomic types from parent rv_at structure
@@ -69,21 +70,21 @@ from simple_msd_functions import *
 """ End block with reading data from r_at files and writing it to csv and excel"""
 
 
-# # # reading the data from csv files
-# # # import pandas as pd
-# # # msd_cm_corrected = pd.read_csv('msd_cm_corrected.csv')
-# # # msd_av_cm_corrected = pd.read_csv('msd_averaged_cm_corrected.csv')
-# # # msd_cm_corrected.to_excel('msd_cm_corrected.csv')
-# # # msd_av_cm_corrected.to_excel('msd_averaged_cm_corrected.csv')
+# # reading the data from csv files
+# # import pandas as pd
+# # msd_cm_corrected = pd.read_csv('msd_cm_corrected.csv')
+# # msd_av_cm_corrected = pd.read_csv('msd_averaged_cm_corrected.csv')
+# # msd_cm_corrected.to_excel('msd_cm_corrected.csv')
+# # msd_av_cm_corrected.to_excel('msd_averaged_cm_corrected.csv')
 
 
-# # reading the data from excel files
-# import pandas as pd
-# # msd_cm_corrected = pd.read_excel('msd_cm_corrected.xlsx')
-# msd_av_cm_corrected = pd.read_excel('msd_averaged_cm_corrected.xlsx')
+# reading the data from excel files
+import pandas as pd
+# msd_cm_corrected = pd.read_excel('msd_cm_corrected.xlsx')
+msd_av_cm_corrected = pd.read_excel('msd_averaged_cm_corrected.xlsx')
 
-# fit_and_plot_msd_linear(msd_av_cm_corrected)
+fit_and_plot_msd_linear(msd_av_cm_corrected)
 
-# # print(msd_cm_corrected.describe())
-# # print(msd_av_cm_corrected.describe())
-# # print(msd_non_corrected)
+# print(msd_cm_corrected.describe())
+# print(msd_av_cm_corrected.describe())
+# print(msd_non_corrected)
