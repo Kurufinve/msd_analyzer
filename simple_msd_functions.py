@@ -359,7 +359,7 @@ def calc_averaged_msd(sts_numpy, dt=7.5E-11):
         for i_start in range(n_write-i_time_diff): 
             i_end = i_start + i_time_diff
 
-            # gaining the sum of MSD between the same times differences for all atoms
+            # gaining the sum of MSD between the same time differences for all atoms
             msd_x_i_ww = ((sts_numpy[i_end].r_at[:,0] - sts_numpy[i_start].r_at[:,0])**2).sum()/sts_numpy[i_end].n_at
             msd_y_i_ww = ((sts_numpy[i_end].r_at[:,1] - sts_numpy[i_start].r_at[:,1])**2).sum()/sts_numpy[i_end].n_at
             msd_z_i_ww = ((sts_numpy[i_end].r_at[:,2] - sts_numpy[i_start].r_at[:,2])**2).sum()/sts_numpy[i_end].n_at
@@ -369,7 +369,7 @@ def calc_averaged_msd(sts_numpy, dt=7.5E-11):
             msd_z_i_w += msd_z_i_ww
             msd_r_i_w += msd_x_i_ww + msd_y_i_ww + msd_z_i_ww
 
-            # gaining the sum of differences between the same times differences for each type of atom
+            # gaining the sum of MSD between the same time differences for each type of atom
             for i_mass in sts_numpy[0].mass_at:
                 element = mass2element(i_mass)
                 mask = sts_numpy[i_end].i_mass_at == i_mass
@@ -446,9 +446,10 @@ def fit_msd_linear(msd_df):
 
     return coeffs
 
-def fit_and_plot_msd_linear(msd_df):
+def fit_and_plot_msd_linear(msd_df,prefix=None):
     """ 
     This function fits and plots linear dependence of msd from the modeling time. 
+    get: msd_df - pandas dataframe with msd
     """
 
     coeffs = fit_msd_linear(msd_df)
@@ -469,3 +470,5 @@ def fit_and_plot_msd_linear(msd_df):
         plt.clf()
         plt.cla()
 
+def print_diffusion_ceofficients(msd_df):
+    coeffs = fit_msd_linear(msd_df)
