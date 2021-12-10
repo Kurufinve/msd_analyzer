@@ -470,5 +470,12 @@ def fit_and_plot_msd_linear(msd_df,prefix=None):
         plt.clf()
         plt.cla()
 
-def print_diffusion_ceofficients(msd_df):
+def print_diffusion_coefficients_3d(msd_df, filename='D.txt'):
     coeffs = fit_msd_linear(msd_df)
+    f = open(filename,'w')
+    f.write('MSD: '+'           '.join(msd_df.drop(columns=['Unnamed: 0','time, s'])))
+    f.write('\n')
+    f.write('D: '+'  '.join([str(c[0]/6) for c in coeffs]))
+    f.close()
+
+    return

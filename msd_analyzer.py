@@ -83,7 +83,8 @@ import pandas as pd
 # msd_cm_corrected = pd.read_excel('msd_cm_corrected.xlsx')
 msd_av_cm_corrected = pd.read_excel('msd_averaged_cm_corrected.xlsx')
 
-fit_and_plot_msd_linear(msd_av_cm_corrected)
+# fit_and_plot_msd_linear(msd_av_cm_corrected)
+print_diffusion_coefficients_3d(msd_av_cm_corrected)
 
 # print(msd_cm_corrected.describe())
 # print(msd_av_cm_corrected.describe())
